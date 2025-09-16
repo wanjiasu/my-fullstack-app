@@ -9,14 +9,17 @@ RUN npm install -g pnpm
 # Copy package files and install dependencies
 COPY package*.json ./
 
-# Install dependencies as root (or myappuser, depending on your structure)
+# Install dependencies as root
 RUN pnpm install
-
-## Switch to the non-root user
-USER node
 
 # Copy the rest of your application code
 COPY . .
+
+# Change ownership of the app directory to node user
+RUN chown -R node:node /app
+
+# Switch to the non-root user
+USER node
 
 EXPOSE 3000
 
