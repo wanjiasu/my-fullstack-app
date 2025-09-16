@@ -43,7 +43,6 @@ services:
   frontend:
     build:
       context: ./nextjs-frontend
-    user: node
     ports:
       - "3000:3000"
     networks:
