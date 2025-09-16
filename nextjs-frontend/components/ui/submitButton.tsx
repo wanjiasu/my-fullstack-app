@@ -1,12 +1,15 @@
 import { useFormStatus } from "react-dom";
-import { Button } from "@/components/ui/button";
 
 export function SubmitButton({ text }: { text: string }) {
   const { pending } = useFormStatus();
 
   return (
-    <Button className="w-full" type="submit" disabled={pending}>
-      {pending ? "Loading..." : text}
-    </Button>
+    <button 
+      className="w-full rounded-xl px-4 py-3 text-sm bg-white text-bg1 font-semibold hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" 
+      type="submit" 
+      disabled={pending}
+    >
+      {pending ? "处理中..." : text}
+    </button>
   );
 }

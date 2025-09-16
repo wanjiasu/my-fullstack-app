@@ -14,8 +14,11 @@ import {
   Ticket,
   Link2
 } from "lucide-react";
+import { getCurrentUser } from "@/lib/auth";
+import { UserMenu } from "@/components/UserMenu";
 
-export default function Home() {
+export default async function Home() {
+  const user = await getCurrentUser();
   return (
     <div className="min-h-screen text-slate-100 bg-gradient-to-b from-bg1 via-bg2 to-bg1">
       {/* Header */}
@@ -34,8 +37,14 @@ export default function Home() {
             <Link href="#social" className="hover:text-white">加入社群</Link>
           </nav>
           <div className="flex items-center gap-2">
-            <button className="hidden sm:inline-flex rounded-xl px-4 py-2 text-sm glass">登录</button>
-            <button className="rounded-xl px-4 py-2 text-sm bg-white text-bg1 font-semibold">免费使用</button>
+            {user ? (
+              <UserMenu user={user} />
+            ) : (
+              <>
+                <Link href="/login" className="hidden sm:inline-flex rounded-xl px-4 py-2 text-sm glass">登录</Link>
+                <Link href="/register" className="rounded-xl px-4 py-2 text-sm bg-white text-bg1 font-semibold">注册</Link>
+              </>
+            )}
           </div>
         </div>
       </header>
