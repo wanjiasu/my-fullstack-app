@@ -52,8 +52,6 @@ services:
       API_BASE_URL: http://backend:8000
       OPENAPI_OUTPUT_FILE: ./shared-data/openapi.json
     volumes:
-      - ./nextjs-frontend:/app
-      - nextjs-node-modules:/app/node_modules
       - ./local-shared-data:/app/shared-data
   mailhog:
     image: mailhog/mailhog
