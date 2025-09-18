@@ -1,22 +1,21 @@
-import uuid
 import re
-
+import uuid
 from typing import Optional
 
 from fastapi import Depends, Request
 from fastapi_users import (
     BaseUserManager,
     FastAPIUsers,
-    UUIDIDMixin,
     InvalidPasswordException,
+    UUIDIDMixin,
 )
-
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
+from httpx_oauth.clients.google import GoogleOAuth2
 
 from .config import settings
 from .database import get_user_db
@@ -25,6 +24,8 @@ from .models import User
 from .schemas import UserCreate
 
 AUTH_URL_PATH = "auth"
+
+
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
@@ -87,3 +88,10 @@ auth_backend = AuthenticationBackend(
 fastapi_users = FastAPIUsers[User, uuid.UUID](get_user_manager, [auth_backend])
 
 current_active_user = fastapi_users.current_user(active=True)
+
+
+google_oauth_client = GoogleOAuth2(
+    client_id=settings.GOOGLE_CLIENT_ID,
+    client_secret=settings.GOOGLE_CLIENT_SECRET,
+    scopes=settings.GOOGLE_OAUTH_SCOPES,
+)

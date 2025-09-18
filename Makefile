@@ -4,6 +4,7 @@
 BACKEND_DIR=fastapi_backend
 FRONTEND_DIR=nextjs-frontend
 DOCKER_COMPOSE=docker compose
+DOCKER_COMPOSE_PROD=$(DOCKER_COMPOSE) -f docker-compose.prod.yml
 
 # Help
 .PHONY: help
@@ -34,7 +35,7 @@ test-frontend: ## Run frontend tests using npm
 # Docker commands
 .PHONY: docker-backend-shell docker-frontend-shell docker-build docker-build-backend \
         docker-build-frontend docker-start-backend docker-start-frontend docker-up-test-db \
-        docker-migrate-db docker-db-schema docker-test-backend docker-test-frontend
+        docker-migrate-db docker-migrate-db-prod docker-db-schema docker-test-backend docker-test-frontend
 
 
 docker-backend-shell: ## Access the backend container shell
@@ -61,8 +62,11 @@ docker-start-frontend: ## Start the frontend container
 docker-up-test-db: ## Start the test database container
 	$(DOCKER_COMPOSE) up db_test
 
-docker-migrate-db: ## Run database migrations using Alembic
+docker-migrate-db: ## Run database migrations using Alembic (local compose)
 	$(DOCKER_COMPOSE) run --rm backend alembic upgrade head
+
+docker-migrate-db-prod: ## Run database migrations using Alembic (production compose)
+	$(DOCKER_COMPOSE_PROD) run --rm backend alembic upgrade head
 
 docker-db-schema: ## Generate a new migration schema. Usage: make docker-db-schema migration_name="add users"
 	$(DOCKER_COMPOSE) run --rm backend alembic revision --autogenerate -m "$(migration_name)"

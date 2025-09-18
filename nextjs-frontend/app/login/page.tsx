@@ -1,49 +1,90 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useActionState, useMemo } from "react";
+import { ArrowLeft } from "lucide-react";
+
+import { login } from "@/components/actions/login-action";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/components/actions/login-action";
-import { useActionState } from "react";
 import { SubmitButton } from "@/components/ui/submitButton";
 import { FieldError, FormError } from "@/components/ui/FormError";
-import { ArrowLeft } from "lucide-react";
+import { GoogleAuthButton } from "@/components/ui/google-auth-button";
+
+const GOOGLE_ERROR_MESSAGES: Record<string, string> = {
+  OAUTH_NOT_AVAILABLE_EMAIL: "无法从 Google 获取邮箱信息，无法完成登录。",
+  OAUTH_USER_ALREADY_EXISTS: "该 Google 账户已绑定系统中的其他用户。",
+  LOGIN_BAD_CREDENTIALS: "该账户已被禁用或不可用。",
+  OAUTH_INVALID_STATE: "Google 登录校验失败，请重试。",
+  OAUTH_TOKEN_EXCHANGE_ERROR: "Google 登录过程中出现问题，请重试。",
+  OAUTH_AUTHORIZE_FAILED: "无法跳转到 Google 授权页面，请稍后再试。",
+  OAUTH_CONFIG_ERROR: "Google 登录配置缺失，请联系管理员。",
+  OAUTH_CALLBACK_MISSING_TOKEN: "未获取到登录凭证，请重新尝试。",
+};
 
 export default function Page() {
   const [state, dispatch] = useActionState(login, undefined);
+  const searchParams = useSearchParams();
+
+  const googleErrorMessage = useMemo(() => {
+    const errorCode = searchParams.get("error");
+    if (!errorCode) return null;
+    return (
+      GOOGLE_ERROR_MESSAGES[errorCode] || "Google 登录失败，请稍后再试。"
+    );
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen text-slate-100 bg-gradient-to-b from-bg1 via-bg2 to-bg1 flex items-center justify-center px-4">
       {/* Background gradient effect */}
-      <div 
-        className="absolute inset-0 opacity-30" 
-        style={{ background: "radial-gradient(ellipse at center, rgba(99,102,241,.15), transparent 70%)" }}
+      <div
+        className="absolute inset-0 opacity-30"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(99,102,241,.15), transparent 70%)",
+        }}
       />
-      
+
       <div className="relative w-full max-w-md">
         {/* Header with back button */}
         <div className="mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" />
             返回首页
           </Link>
-          
+
           {/* Logo */}
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-400 grid place-items-center font-black text-lg">AI</div>
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-400 grid place-items-center font-black text-lg">
+              AI
+            </div>
             <div className="text-2xl font-bold">SmartBet Hub</div>
           </div>
         </div>
 
         {/* Login Form */}
-        <form action={dispatch} className="glass rounded-2xl shadow-soft p-8">
-          <div className="text-center mb-8">
+        <form action={dispatch} className="glass rounded-2xl shadow-soft p-8 space-y-6">
+          <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">欢迎回来</h1>
             <p className="text-white/70">登录您的账户，继续您的智能下注之旅</p>
           </div>
 
+          {googleErrorMessage ? (
+            <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+              {googleErrorMessage}
+            </div>
+          ) : null}
+
           <div className="space-y-6">
             <div>
-              <Label htmlFor="username" className="text-sm font-medium text-white/90 mb-2 block">
+              <Label
+                htmlFor="username"
+                className="text-sm font-medium text-white/90 mb-2 block"
+              >
                 用户名
               </Label>
               <Input
@@ -58,7 +99,10 @@ export default function Page() {
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-sm font-medium text-white/90 mb-2 block">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium text-white/90 mb-2 block"
+              >
                 密码
               </Label>
               <Input
@@ -80,8 +124,14 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-4 space-y-4">
               <SubmitButton text="登录" />
+              <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-white/40">
+                <span className="flex-1 h-px bg-white/10" />
+                <span>或</span>
+                <span className="flex-1 h-px bg-white/10" />
+              </div>
+              <GoogleAuthButton />
             </div>
 
             <FormError state={state} />
