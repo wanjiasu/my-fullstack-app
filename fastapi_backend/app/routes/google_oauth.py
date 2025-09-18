@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, List, Tuple
 from urllib.parse import urlencode
 
@@ -14,6 +15,7 @@ from fastapi_users.router.oauth import (
     STATE_TOKEN_AUDIENCE,
     generate_state_token,
 )
+from httpx_oauth.exceptions import GetIdEmailError
 from httpx_oauth.integrations.fastapi import OAuth2AuthorizeCallback
 from httpx_oauth.oauth2 import OAuth2Token
 
@@ -26,6 +28,8 @@ from app.users import (
 )
 
 router = APIRouter(prefix=f"/{AUTH_URL_PATH}/google", tags=["auth"])
+
+logger = logging.getLogger(__name__)
 
 CALLBACK_ROUTE_NAME = "oauth:google.callback"
 CALLBACK_EXTERNAL_URL = f"{settings.BACKEND_BASE_URL.rstrip('/')}/{AUTH_URL_PATH}/google/callback"
@@ -90,7 +94,23 @@ async def callback(
         account_id, account_email = await google_oauth_client.get_id_email(
             token["access_token"]
         )
+    except GetIdEmailError as error:
+        response = error.response
+        detail = None
+        if response is not None:
+            try:
+                detail = response.json()
+            except Exception:  # pragma: no cover - best effort logging
+                detail = response.text
+        logger.exception("Google get_id_email failed: status=%s detail=%s", getattr(response, "status_code", "unknown"), detail)
+        return RedirectResponse(
+            _build_frontend_url(
+                FAILURE_PATH, {"error": TOKEN_EXCHANGE_ERROR_CODE}
+            ),
+            status_code=status.HTTP_302_FOUND,
+        )
     except Exception:
+        logger.exception("Unexpected error while exchanging Google token")
         return RedirectResponse(
             _build_frontend_url(
                 FAILURE_PATH, {"error": TOKEN_EXCHANGE_ERROR_CODE}

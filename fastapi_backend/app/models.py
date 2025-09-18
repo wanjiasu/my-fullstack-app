@@ -16,15 +16,18 @@ class Base(DeclarativeBase):
 
 class OAuthAccount(SQLAlchemyBaseOAuthAccountTableUUID, Base):
     user: Mapped["User"] = relationship(
-        "User", back_populates="oauth_accounts", uselist=False
+        "User", back_populates="oauth_accounts", uselist=False, lazy="joined"
     )
 
 
 class User(SQLAlchemyBaseUserTableUUID, Base):
     oauth_accounts: Mapped[List[OAuthAccount]] = relationship(
-        "OAuthAccount", back_populates="user", cascade="all, delete-orphan"
+        "OAuthAccount",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
     )
-    items = relationship("Item", back_populates="user", cascade="all, delete-orphan")
+    items = relationship("Item", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
 
 
 class Item(Base):

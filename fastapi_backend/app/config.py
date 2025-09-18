@@ -30,7 +30,10 @@ class Settings(BaseSettings):
     GOOGLE_OAUTH_STATE_TTL: int = 3600
     GOOGLE_SUCCESS_REDIRECT_PATH: str = "/oauth/google/success"
     GOOGLE_FAILURE_REDIRECT_PATH: str = "/login"
-    GOOGLE_OAUTH_SCOPES: List[str] = ["openid", "email", "profile"]
+    GOOGLE_OAUTH_SCOPES: List[str] = [
+        "https://www.googleapis.com/auth/userinfo.profile",
+        "https://www.googleapis.com/auth/userinfo.email",
+    ]
     GOOGLE_ASSOCIATE_BY_EMAIL: bool = True
     GOOGLE_IS_VERIFIED_BY_DEFAULT: bool = True
 

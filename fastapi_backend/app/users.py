@@ -93,5 +93,4 @@ current_active_user = fastapi_users.current_user(active=True)
 google_oauth_client = GoogleOAuth2(
     client_id=settings.GOOGLE_CLIENT_ID,
     client_secret=settings.GOOGLE_CLIENT_SECRET,
-    scopes=settings.GOOGLE_OAUTH_SCOPES,
 )
